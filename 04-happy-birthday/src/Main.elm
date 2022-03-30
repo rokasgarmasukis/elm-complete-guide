@@ -9,8 +9,8 @@ import Html.Events exposing (onClick, onInput)
 initModel : Model
 initModel =
     { message = "Welcome"
-    , firstname = ""
-    , age = 0
+    , firstname = Nothing
+    , age = Nothing
     }
 
 
@@ -32,48 +32,94 @@ type Msg
 
 type alias Model =
     { message : String
-    , firstname : String
-    , age: Int
+    , firstname : Maybe String
+    , age : Maybe Int
     }
 
 
 view : Model -> Html.Html Msg
 view model =
     Html.div []
-        [ Html.text model.message
-        , Html.input [ onInput MsgNewName, value model.firstname ] []
-        , Html.input [ onInput MsgNewAgeAsString, value (String.fromInt model.age) ] []
-        , Html.button [ onClick MsgSuprise ] [ Html.text "Surprise" ]
-        , Html.button [ onClick MsgReset ] [ Html.text "Reset" ]
-        , Html.text (String.fromInt (String.length model.firstname))
+        [ viewMessage model.message
+        , viewFirstnameInput model.firstname
+        , viewAgeInput model.age
+        , viewSupriseButton
+        , viewResetButton
+        , viewLength model.firstname
         ]
+
+
+viewMessage : String -> Html.Html Msg
+viewMessage message =
+    Html.text message
+
+
+viewFirstnameInput : Maybe String -> Html.Html Msg
+viewFirstnameInput firstname =
+    Html.input [ onInput MsgNewName, value (Maybe.withDefault "" firstname) ] []
+
+
+viewAgeInput : Maybe Int -> Html.Html Msg
+viewAgeInput age =
+    Html.input [ onInput MsgNewAgeAsString, value (String.fromInt (Maybe.withDefault 1 age)) ] []
+
+
+viewSupriseButton : Html.Html Msg
+viewSupriseButton =
+    Html.button [ onClick MsgSuprise ] [ Html.text "Surprise" ]
+
+
+viewResetButton : Html.Html Msg
+viewResetButton =
+    Html.button [ onClick MsgReset ] [ Html.text "Reset" ]
+
+
+viewLength : Maybe String -> Html.Html Msg
+viewLength firstname =
+    Html.text (String.fromInt (String.length (Maybe.withDefault "" firstname)))
 
 
 update : Msg -> Model -> Model
 update msg model =
     case msg of
         MsgSuprise ->
-            { model
-                | message = "Happy Birthday " ++ model.firstname ++ " with " ++ (String.fromInt model.age) ++ " years old !!"
-            }
+            case model.age of
+                Just anAge ->
+                    case model.firstname of
+                        Just aName ->
+                            { model
+                                | message = "Happy Birthday " ++ aName ++ " with " ++ String.fromInt anAge ++ " years old !!"
+                            }
+
+                        Nothing ->
+                            { model | message = "The first name is required" }
+
+                Nothing ->
+                    { model | message = "Age is required" }
 
         MsgReset ->
             initModel
 
         MsgNewName newName ->
-            { model
-                | firstname = newName
-            }
-        
+            if String.trim newName == "" then
+                { model
+                    | firstname = Nothing
+                }
+
+            else
+                { model
+                    | firstname = Just newName
+                }
+
         MsgNewAgeAsString newValue ->
             case String.toInt newValue of
                 Just anInt ->
-                    {
-                        model
-                            | age = anInt
+                    { model
+                        | age = Just anInt
                     }
+
                 Nothing ->
-                    {
-                        model
-                            | message = "The age is wrong", age = 0
+                    { model
+                        | message = "The age is wrong"
+                        , age = Nothing
                     }

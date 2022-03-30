@@ -4938,7 +4938,8 @@ function _Browser_load(url)
 		}
 	}));
 }
-var $author$project$Main$initModel = {age: 0, firstname: '', message: 'Welcome'};
+var $elm$core$Maybe$Nothing = {$: 'Nothing'};
+var $author$project$Main$initModel = {age: $elm$core$Maybe$Nothing, firstname: $elm$core$Maybe$Nothing, message: 'Welcome'};
 var $elm$core$Basics$EQ = {$: 'EQ'};
 var $elm$core$Basics$GT = {$: 'GT'};
 var $elm$core$Basics$LT = {$: 'LT'};
@@ -5045,7 +5046,6 @@ var $elm$core$Basics$add = _Basics_add;
 var $elm$core$Maybe$Just = function (a) {
 	return {$: 'Just', a: a};
 };
-var $elm$core$Maybe$Nothing = {$: 'Nothing'};
 var $elm$core$String$all = _String_all;
 var $elm$core$Basics$and = _Basics_and;
 var $elm$core$Basics$append = _Utils_append;
@@ -10556,92 +10556,132 @@ var $elm$browser$Browser$sandbox = function (impl) {
 			view: impl.view
 		});
 };
+var $elm$core$String$trim = _String_trim;
 var $author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
 			case 'MsgSuprise':
-				return _Utils_update(
-					model,
-					{
-						message: 'Happy Birthday ' + (model.firstname + (' with ' + ($elm$core$String$fromInt(model.age) + ' years old !!')))
-					});
+				var _v1 = model.age;
+				if (_v1.$ === 'Just') {
+					var anAge = _v1.a;
+					var _v2 = model.firstname;
+					if (_v2.$ === 'Just') {
+						var aName = _v2.a;
+						return _Utils_update(
+							model,
+							{
+								message: 'Happy Birthday ' + (aName + (' with ' + ($elm$core$String$fromInt(anAge) + ' years old !!')))
+							});
+					} else {
+						return _Utils_update(
+							model,
+							{message: 'The first name is required'});
+					}
+				} else {
+					return _Utils_update(
+						model,
+						{message: 'Age is required'});
+				}
 			case 'MsgReset':
 				return $author$project$Main$initModel;
 			case 'MsgNewName':
 				var newName = msg.a;
-				return _Utils_update(
+				return ($elm$core$String$trim(newName) === '') ? _Utils_update(
 					model,
-					{firstname: newName});
+					{firstname: $elm$core$Maybe$Nothing}) : _Utils_update(
+					model,
+					{
+						firstname: $elm$core$Maybe$Just(newName)
+					});
 			default:
 				var newValue = msg.a;
-				var _v1 = $elm$core$String$toInt(newValue);
-				if (_v1.$ === 'Just') {
-					var anInt = _v1.a;
+				var _v3 = $elm$core$String$toInt(newValue);
+				if (_v3.$ === 'Just') {
+					var anInt = _v3.a;
 					return _Utils_update(
 						model,
-						{age: anInt});
+						{
+							age: $elm$core$Maybe$Just(anInt)
+						});
 				} else {
 					return _Utils_update(
 						model,
-						{age: 0, message: 'The age is wrong'});
+						{age: $elm$core$Maybe$Nothing, message: 'The age is wrong'});
 				}
 		}
 	});
 var $author$project$Main$MsgNewAgeAsString = function (a) {
 	return {$: 'MsgNewAgeAsString', a: a};
 };
+var $author$project$Main$viewAgeInput = function (age) {
+	return A2(
+		$elm$html$Html$input,
+		_List_fromArray(
+			[
+				$elm$html$Html$Events$onInput($author$project$Main$MsgNewAgeAsString),
+				$elm$html$Html$Attributes$value(
+				$elm$core$String$fromInt(
+					A2($elm$core$Maybe$withDefault, 1, age)))
+			]),
+		_List_Nil);
+};
 var $author$project$Main$MsgNewName = function (a) {
 	return {$: 'MsgNewName', a: a};
 };
+var $author$project$Main$viewFirstnameInput = function (firstname) {
+	return A2(
+		$elm$html$Html$input,
+		_List_fromArray(
+			[
+				$elm$html$Html$Events$onInput($author$project$Main$MsgNewName),
+				$elm$html$Html$Attributes$value(
+				A2($elm$core$Maybe$withDefault, '', firstname))
+			]),
+		_List_Nil);
+};
+var $author$project$Main$viewLength = function (firstname) {
+	return $elm$html$Html$text(
+		$elm$core$String$fromInt(
+			$elm$core$String$length(
+				A2($elm$core$Maybe$withDefault, '', firstname))));
+};
+var $author$project$Main$viewMessage = function (message) {
+	return $elm$html$Html$text(message);
+};
 var $author$project$Main$MsgReset = {$: 'MsgReset'};
+var $author$project$Main$viewResetButton = A2(
+	$elm$html$Html$button,
+	_List_fromArray(
+		[
+			$elm$html$Html$Events$onClick($author$project$Main$MsgReset)
+		]),
+	_List_fromArray(
+		[
+			$elm$html$Html$text('Reset')
+		]));
 var $author$project$Main$MsgSuprise = {$: 'MsgSuprise'};
+var $author$project$Main$viewSupriseButton = A2(
+	$elm$html$Html$button,
+	_List_fromArray(
+		[
+			$elm$html$Html$Events$onClick($author$project$Main$MsgSuprise)
+		]),
+	_List_fromArray(
+		[
+			$elm$html$Html$text('Surprise')
+		]));
 var $author$project$Main$view = function (model) {
 	return A2(
 		$elm$html$Html$div,
 		_List_Nil,
 		_List_fromArray(
 			[
-				$elm$html$Html$text(model.message),
-				A2(
-				$elm$html$Html$input,
-				_List_fromArray(
-					[
-						$elm$html$Html$Events$onInput($author$project$Main$MsgNewName),
-						$elm$html$Html$Attributes$value(model.firstname)
-					]),
-				_List_Nil),
-				A2(
-				$elm$html$Html$input,
-				_List_fromArray(
-					[
-						$elm$html$Html$Events$onInput($author$project$Main$MsgNewAgeAsString),
-						$elm$html$Html$Attributes$value(
-						$elm$core$String$fromInt(model.age))
-					]),
-				_List_Nil),
-				A2(
-				$elm$html$Html$button,
-				_List_fromArray(
-					[
-						$elm$html$Html$Events$onClick($author$project$Main$MsgSuprise)
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Surprise')
-					])),
-				A2(
-				$elm$html$Html$button,
-				_List_fromArray(
-					[
-						$elm$html$Html$Events$onClick($author$project$Main$MsgReset)
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Reset')
-					])),
-				$elm$html$Html$text(
-				$elm$core$String$fromInt(
-					$elm$core$String$length(model.firstname)))
+				$author$project$Main$viewMessage(model.message),
+				$author$project$Main$viewFirstnameInput(model.firstname),
+				$author$project$Main$viewAgeInput(model.age),
+				$author$project$Main$viewSupriseButton,
+				$author$project$Main$viewResetButton,
+				$author$project$Main$viewLength(model.firstname)
 			]));
 };
 var $author$project$Main$main = $elm$browser$Browser$sandbox(
